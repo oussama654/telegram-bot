@@ -1,0 +1,48 @@
+name: Run Single Account Bot
+
+on:
+  schedule:
+    - cron: '0 */5 * * *' # تشغيل احتياطي كل 5 ساعات لحمايته من التوقف تماماً
+  workflow_dispatch:
+
+# منع تشغيل أكثر من نسخة في نفس الوقت لحماية جلسة التليجرام من الحظر والتضارب
+concurrency:
+  group: single-account-bot
+  cancel-in-progress: true 
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      actions: write # إجبارية للسماح للملف بإعادة تشغيل نفسه
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: pip install telethon
+        
+      - name: Run bot
+        env:
+          API_ID: ${{ secrets.API_ID }}
+          API_HASH: ${{ secrets.API_HASH }}
+          SESSION: ${{ secrets.SESSION }}
+          ADMIN_ID: ${{ secrets.ADMIN_ID }}
+          NOTIFY_USER: ${{ secrets.NOTIFY_USER }}
+          DELAY_MIN: ${{ secrets.DELAY_MIN }}
+          DELAY_MAX: ${{ secrets.DELAY_MAX }}
+        # يعمل لمدة 350 دقيقة ثم يغلق بأمان ليمرر وظيفة إعادة التشغيل
+        run: timeout 350m python single_account.py || true
+
+      - name: إعادة التشغيل التلقائي (Loop)
+        if: always() # تضمن عمل الخطوة حتى لو أغلق السكربت أو حدث خطأ
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "تم رصد توقف السكربت أو انتهاء المدة الآمنة، جاري إعادة التشغيل فوراً..."
+          gh workflow run "${{ github.workflow }}"
