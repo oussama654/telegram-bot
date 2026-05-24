@@ -29,8 +29,8 @@ ADMIN_ID = int(os.environ["ADMIN_ID"])
 NOTIFY_USER = os.environ.get("NOTIFY_USER", "me")
 
 # تأخير عشوائي (بالثواني) بين العمليات
-DELAY_MIN = int(os.environ.get("DELAY_MIN", 45))
-DELAY_MAX = int(os.environ.get("DELAY_MAX", 180))
+DELAY_MIN = 45
+DELAY_MAX = 180
 
 # ========== الكلمات المفتاحية ==========
 # كلمات الهمسات التي يجب تجاهلها تماماً
