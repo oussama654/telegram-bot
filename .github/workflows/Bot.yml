@@ -37,7 +37,7 @@ jobs:
           DELAY_MIN: ${{ secrets.DELAY_MIN }}
           DELAY_MAX: ${{ secrets.DELAY_MAX }}
         # يعمل لمدة 350 دقيقة ثم يغلق بأمان ليمرر وظيفة إعادة التشغيل
-        run: timeout 350m python single_account.py || true
+        run: timeout 350m python Bot.py || true
 
       - name: إعادة التشغيل التلقائي (Loop)
         if: always() # تضمن عمل الخطوة حتى لو أغلق السكربت أو حدث خطأ
